@@ -40,10 +40,21 @@ flowchart TD
   Loop -->|max iterations| Rev
 ```
 
+## Screenshots
+
+![Orchestrator screenshot 1](docs/images/1.png)
+
+![Orchestrator screenshot 2](docs/images/2.png)
+
+![Orchestrator screenshot 3](docs/images/3.png)
+
+![Orchestrator screenshot 4](docs/images/4.png)
+
 ## Repo layout
 
 | Path | Role |
 |------|------|
+| `docs/images/` | Screenshots referenced from this README |
 | `orchestrator.py` | Streamlit UI, streaming OpenAI tool loop |
 | `tools.json` | OpenAI function tool definitions (loaded from repo root; required) |
 | `prompts/*.md` | Guardrail, Dev, QA system prompts (`PROMPTS_DIR`, default `./prompts`) |
