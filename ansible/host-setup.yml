@@ -3,7 +3,7 @@
   hosts: web
   become: true
   vars:
-    ansible_port: 1355
+    ansible_port: 22
     destination_folder: /opt/multi-agent-poc
     git_repo: https://ci.unitedline.net/a.ichetovkin/multi-agent-poc.git
   tasks:
