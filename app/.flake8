@@ -1,0 +1,21 @@
+[flake8]
+# Increase the line length to accommodate Django URL strings and HTML
+max-line-length = 120
+
+# Ignore overly strict styling rules that trip up LLMs:
+# E203: Whitespace before ':'
+# E266: Too many leading '#' for block comment
+# E501: Line too long (handled by max-line-length, but good to extend ignore)
+# W503: Line break occurred before a binary operator
+# E302: Expected 2 blank lines, found 1
+# E303: Too many blank lines
+extend-ignore = E203, E266, E501, W503, E302, E303
+
+# Prevent QA from checking unnecessary directories
+exclude =
+    .git,
+    __pycache__,
+    migrations,
+    venv,
+    env,
+    .env

@@ -1,0 +1,87 @@
+---
+- name: Provision POC Target Host
+  hosts: web
+  become: true
+  vars:
+    ansible_port: 1355
+    destination_folder: /opt/multi-agent-poc
+    git_repo: https://ci.unitedline.net/a.ichetovkin/multi-agent-poc.git
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install required dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+        state: present
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker and Docker Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure Docker is running and enabled
+      systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Ensure target directory exists
+      file:
+        path: "{{ destination_folder }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy project files to target host
+      git:
+        repo: "{{ git_repo }}"
+        dest: "{{ destination_folder }}"
+        version: main
+        force: true
+        recursive: true
+      tags: git
+
+    - name: Securely copy .env file to the target host
+      copy:
+        src: ../.env
+        dest: "{{ destination_folder }}/.env"
+        owner: root
+        group: root
+        mode: '0600'
+      tags: env
+
+    - name: Render nginx config on target
+      ansible.builtin.template:
+        src: nginx.conf.j2
+        dest: "{{ destination_folder }}/deploy/nginx.conf"
+        mode: "0644"
+      tags: deploy
+
+    - name: Build and start Docker Compose project
+      community.docker.docker_compose_v2:
+        project_src: "{{ destination_folder }}/deploy"
+        state: present
+        build: always
+        pull: missing
+        recreate: auto
+        remove_orphans: true
+      tags: deploy
